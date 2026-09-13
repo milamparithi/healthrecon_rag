@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: healthrecon-rag-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag}
+    username: ${SPRING_DATASOURCE_USERNAME:rag}
+    password: ${SPRING_DATASOURCE_PASSWORD:rag}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_SIZE:25MB}
+      max-request-size: ${MAX_REQUEST_SIZE:50MB}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-key-please-change-in-prod-1234567890}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}
+  quota:
+    max-upload-bytes-per-user: ${MAX_UPLOAD_BYTES_PER_USER:104857600}
+  ingestion:
+    poll-ms: ${INGESTION_POLL_MS:5000}
+    initial-delay-ms: ${INGESTION_INITIAL_DELAY_MS:5000}
+  indexing:
+    poll-ms: ${INDEXING_POLL_MS:5000}
+    initial-delay-ms: ${INDEXING_INITIAL_DELAY_MS:5000}
+  rag:
+    top-k: ${RAG_TOP_K:5}
+    max-history-messages: ${RAG_MAX_HISTORY_MESSAGES:10}
+    system-prompt: ${RAG_SYSTEM_PROMPT:You are a helpful assistant. Answer the user's question using ONLY the provided context. If the answer is not in the context, say that you do not know.}
+    chunking:
+      mode: ${RAG_CHUNKING_MODE:adaptive}
+      chunk-size: ${RAG_CHUNK_SIZE:2000}
+      chunk-overlap: ${RAG_CHUNK_OVERLAP:100}
+      max-chunks-per-doc: ${RAG_MAX_CHUNKS_PER_DOC:2000}
+
+qdrant:
+  host: ${QDRANT_HOST:localhost}
+  grpc-port: ${QDRANT_GRPC_PORT:6334}
+  api-key: ${QDRANT_API_KEY:}
+
+llm:
+  base-url: ${LLM_BASE_URL:}
+  api-key: ${LLM_API_KEY:}
+  chat-model: ${LLM_CHAT_MODEL:gpt-4o-mini}
+  embedding-model: ${LLM_EMBEDDING_MODEL:text-embedding-3-small}
+  embedding-dimension: ${LLM_EMBEDDING_DIMENSION:1536}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
