@@ -33,15 +33,104 @@ app:
   indexing:
     poll-ms: ${INDEXING_POLL_MS:5000}
     initial-delay-ms: ${INDEXING_INITIAL_DELAY_MS:5000}
+  golden:
+    enabled: ${GOLDEN_ENABLED:true}
+    poll-ms: ${GOLDEN_POLL_MS:60000}
+    initial-delay-ms: ${GOLDEN_INITIAL_DELAY_MS:10000}
+    questions-per-doc: ${GOLDEN_QUESTIONS_PER_DOC:3}
+    max-chars-per-doc: ${GOLDEN_MAX_CHARS_PER_DOC:12000}
+    max-retries: ${GOLDEN_MAX_RETRIES:3}
   rag:
     top-k: ${RAG_TOP_K:5}
     max-history-messages: ${RAG_MAX_HISTORY_MESSAGES:10}
     system-prompt: ${RAG_SYSTEM_PROMPT:You are a helpful assistant. Answer the user's question using ONLY the provided context. If the answer is not in the context, say that you do not know.}
+    guardrails:
+      enabled: ${RAG_GUARDRAILS_ENABLED:true}
+      max-input-chars: ${RAG_GUARDRAILS_MAX_INPUT_CHARS:1000}
+      require-citation: ${RAG_GUARDRAILS_REQUIRE_CITATION:true}
+      hallucination-min-coverage: ${RAG_GUARDRAILS_HALLUCINATION_MIN_COVERAGE:0.4}
+      rate-limit-requests: ${RAG_GUARDRAILS_RATE_LIMIT_REQUESTS:60}
+      rate-limit-window-seconds: ${RAG_GUARDRAILS_RATE_LIMIT_WINDOW_SECONDS:60}
+      max-messages-per-conversation: ${RAG_GUARDRAILS_MAX_MESSAGES_PER_CONVERSATION:300}
+      llm-check-enabled: ${RAG_GUARDRAILS_LLM_CHECK_ENABLED:false}
+      harm-phrases:
+        - "kill myself"
+        - "suicide"
+        - "take my own life"
+        - "self-harm"
+        - "hurt myself"
+        - "overdose"
+        - "poison"
+        - "weapon"
+        - "molest"
+        - "child porn"
+        - "rape"
+        - "hate speech"
+      injection-phrases:
+        - "ignore previous instructions"
+        - "ignore the instructions"
+        - "ignore all previous"
+        - "disregard your instructions"
+        - "you are now"
+        - "from now on act as"
+        - "system prompt"
+        - "developer mode"
+        - "jailbreak"
+        - "reveal your system"
+        - "forget the rules"
+      rude-phrases:
+        - "idiot"
+        - "stupid"
+        - "dumb"
+        - "shut up"
+        - "useless"
+        - "moron"
+        - "you suck"
+        - "piece of garbage"
+      alarmist-phrases:
+        - "will die"
+        - "gonna die"
+        - "guaranteed"
+        - "100% safe"
+        - "100% effective"
+        - "miracle cure"
+        - "definitely"
+        - "no doubt"
+        - "you must do this now"
+        - "fake"
+        - "scam"
+    cache:
+      enabled: ${RAG_CACHE_ENABLED:true}
+      similarity-threshold: ${RAG_CACHE_SIMILARITY_THRESHOLD:0.92}
+      ttl-seconds: ${RAG_CACHE_TTL_SECONDS:604800}
+      collection-name: semantic-cache
+    search:
+      hybrid-enabled: ${RAG_HYBRID_ENABLED:true}
+      candidates: ${RAG_SEARCH_CANDIDATES:30}
+      fusion: ${RAG_SEARCH_FUSION:rrf}
+      rerank:
+        enabled: ${RAG_RERANK_ENABLED:false}
+        mode: ${RAG_RERANK_MODE:none}
+    query-rewrite:
+      enabled: ${RAG_QUERY_REWRITE_ENABLED:false}
+      max-chars: ${RAG_QUERY_REWRITE_MAX_CHARS:200}
+      system-prompt: ${RAG_QUERY_REWRITE_SYSTEM_PROMPT:Rewrite the user's question into a single concise standalone search query that captures the exact information being asked, incorporating any context from the conversation history. Then answer with ONLY the rewritten query, no explanation.}
     chunking:
       mode: ${RAG_CHUNKING_MODE:adaptive}
       chunk-size: ${RAG_CHUNK_SIZE:2000}
       chunk-overlap: ${RAG_CHUNK_OVERLAP:100}
       max-chunks-per-doc: ${RAG_MAX_CHUNKS_PER_DOC:2000}
+  eval:
+    enabled: ${EVAL_ENABLED:true}
+    sample-rate: ${EVAL_SAMPLE_RATE:0.1}
+  langfuse:
+    enabled: ${LANGFUSE_ENABLED:false}
+    host: ${LANGFUSE_HOST:https://cloud.langfuse.com}
+    public-key: ${LANGFUSE_PUBLIC_KEY:}
+    secret-key: ${LANGFUSE_SECRET_KEY:}
+    release: ${LANGFUSE_RELEASE:}
+    environment: ${LANGFUSE_ENVIRONMENT:dev}
+    sample-ratio: ${LANGFUSE_SAMPLE_RATIO:1.0}
 
 qdrant:
   host: ${QDRANT_HOST:localhost}

@@ -48,7 +48,7 @@ class ChatIntegrationTest extends BaseIntegrationTest {
             return Response.from(segments.stream().map(s -> new Embedding(unitVector())).toList());
         });
         when(chatModel.chat(anyList())).thenReturn(dev.langchain4j.model.chat.response.ChatResponse.builder()
-                .aiMessage(new AiMessage("Paracetamol is recommended for headaches.")).build());
+                .aiMessage(new AiMessage("Take paracetamol 500 mg as the first step [1].")).build());
     }
 
     @Test
@@ -124,7 +124,7 @@ class ChatIntegrationTest extends BaseIntegrationTest {
                         .contentType(appJson())
                         .content(json(Map.of("message", "What should the patient take for the headache?"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.answer").value("Paracetamol is recommended for headaches."))
+                .andExpect(jsonPath("$.answer").value("Take paracetamol 500 mg as the first step [1]."))
                 .andExpect(jsonPath("$.sources[0].filename").value("headache.md"))
                 .andExpect(jsonPath("$.title", org.hamcrest.Matchers.containsString("What should the patient take")));
 

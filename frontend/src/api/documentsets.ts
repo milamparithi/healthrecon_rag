@@ -1,6 +1,7 @@
 import request from './client'
 import type {
   DocumentDetail,
+  DocumentListItem,
   DocumentPage,
   DocumentSet,
   UploadResult,
@@ -46,6 +47,22 @@ export async function listDocuments(
   size = 20,
 ): Promise<DocumentPage> {
   return request<DocumentPage>(`/documentsets/${id}/documents?page=${page}&size=${size}`)
+}
+
+const MAX_PAGE_SIZE = 100
+const MAX_PAGES = 1000
+
+export async function listAllDocuments(id: string): Promise<DocumentListItem[]> {
+  const content: DocumentListItem[] = []
+  let page = 0
+  let totalPages = 1
+  while (page < totalPages && page < MAX_PAGES) {
+    const result = await listDocuments(id, page, MAX_PAGE_SIZE)
+    content.push(...result.content)
+    totalPages = result.totalPages
+    page += 1
+  }
+  return content
 }
 
 export async function uploadDocuments(id: string, files: File[]): Promise<UploadResult[]> {

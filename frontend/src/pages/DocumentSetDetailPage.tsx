@@ -237,6 +237,12 @@ export default function DocumentSetDetailPage() {
         </Link>
         <h1 className="detail-title">{set.name}</h1>
         <StatusBadge status={set.status} />
+        <Link className="btn btn-ghost" to={`/documentsets/${id}/evaluation`}>
+          Evaluation
+        </Link>
+        <Link className="btn btn-ghost" to={`/documentsets/${id}/reviews`}>
+          Reviews
+        </Link>
       </div>
       {set.description && <p className="muted">{set.description}</p>}
       {error && <div className="alert alert-error">{error}</div>}

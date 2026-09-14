@@ -10,6 +10,7 @@ import com.healthrecon.rag.exception.ConflictException;
 import com.healthrecon.rag.exception.NotFoundException;
 import com.healthrecon.rag.repository.DocumentRepository;
 import com.healthrecon.rag.repository.DocumentSetRepository;
+import com.healthrecon.rag.service.semanticcache.SemanticCache;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +41,9 @@ class DocumentSetServiceTest {
 
     @Mock
     private VectorIndexer vectorIndexer;
+
+    @Mock
+    private SemanticCache semanticCache;
 
     @InjectMocks
     private DocumentSetService documentSetService;
@@ -143,6 +147,7 @@ class DocumentSetServiceTest {
 
         verify(vectorIndexer).deleteDocument(docSetId, docId);
         verify(documentRepository).delete(doc);
+        verify(semanticCache).invalidate(docSetId);
         verify(documentSetRepository).findById(docSetId);
     }
 
@@ -171,6 +176,7 @@ class DocumentSetServiceTest {
         documentSetService.delete(docSetId);
 
         verify(vectorIndexer).deleteSet(docSetId);
+        verify(semanticCache).invalidate(docSetId);
         verify(documentSetRepository).delete(set);
     }
 
@@ -231,6 +237,7 @@ class DocumentSetServiceTest {
         documentSetService.deleteAllDocuments(docSetId);
 
         verify(vectorIndexer).deleteSet(docSetId);
+        verify(semanticCache).invalidate(docSetId);
         verify(documentRepository).deleteByDocSetId(docSetId);
         assertThat(set.getStatus()).isEqualTo(DocumentSetStatus.EMPTY);
     }

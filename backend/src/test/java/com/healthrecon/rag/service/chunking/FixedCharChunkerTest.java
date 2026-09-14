@@ -1,6 +1,7 @@
 package com.healthrecon.rag.service.chunking;
 
 import com.healthrecon.rag.config.RagProperties;
+import com.healthrecon.rag.config.SearchProperties;
 import com.healthrecon.rag.service.extraction.StructureExtractor;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +15,9 @@ class FixedCharChunkerTest {
     private final UUID docId = UUID.randomUUID();
 
     private FixedCharChunker chunker(int size, int overlap) {
-        return new FixedCharChunker(new RagProperties(5, 10, "system",
-                new RagProperties.Chunking("fixed", size, overlap, 2000)));
+        return new FixedCharChunker(new RagProperties(5, 10, "system", null, null,
+                new SearchProperties(true, 30, "rrf", new SearchProperties.Rerank(false, "none")),
+                null, new RagProperties.Chunking("fixed", size, overlap, 2000)));
     }
 
     @Test

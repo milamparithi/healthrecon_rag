@@ -15,6 +15,8 @@ import {
 import type { ChatMessage, Conversation } from '../api/types'
 import TrashIcon from './TrashIcon'
 
+const MAX_INPUT_CHARS = 1000
+
 interface ChatPanelProps {
   documentSetId: string
   enabled: boolean
@@ -214,13 +216,17 @@ export default function ChatPanel({ documentSetId, enabled }: ChatPanelProps) {
                 type="text"
                 placeholder="Ask about this document set…"
                 value={input}
+                maxLength={MAX_INPUT_CHARS}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={sending || activeId === null}
               />
+              <span className={`muted chat-charcount${input.length > MAX_INPUT_CHARS ? ' chat-charcount-over' : ''}`}>
+                {input.length}/{MAX_INPUT_CHARS}
+              </span>
               <button
                 className="btn btn-primary"
                 type="submit"
-                disabled={sending || activeId === null || input.trim().length === 0}
+                disabled={sending || activeId === null || input.trim().length === 0 || input.length > MAX_INPUT_CHARS}
               >
                 {sending ? 'Sending…' : 'Send'}
               </button>

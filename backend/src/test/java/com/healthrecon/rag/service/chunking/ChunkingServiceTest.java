@@ -1,6 +1,7 @@
 package com.healthrecon.rag.service.chunking;
 
 import com.healthrecon.rag.config.RagProperties;
+import com.healthrecon.rag.config.SearchProperties;
 import com.healthrecon.rag.service.extraction.Section;
 import com.healthrecon.rag.service.extraction.StructuralDocument;
 import com.healthrecon.rag.service.extraction.StructureExtractionService;
@@ -68,8 +69,9 @@ class ChunkingServiceTest {
 
     private ChunkingService service(String mode, StructureExtractionService extractionService) {
         RagProperties properties = new RagProperties(
-                5, 10, "system",
-                new RagProperties.Chunking(mode, 2000, 100, 2000));
+                5, 10, "system", null, null,
+                new SearchProperties(true, 30, "rrf", new SearchProperties.Rerank(false, "none")),
+                null, new RagProperties.Chunking(mode, 2000, 100, 2000));
         FixedCharChunker fixed = new FixedCharChunker(properties);
         return new ChunkingService(properties, extractionService,
                 new AdaptiveStructuralChunker(properties, fixed), fixed);

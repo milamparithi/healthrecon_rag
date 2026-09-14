@@ -4,6 +4,7 @@ import com.healthrecon.rag.domain.StoredDocument;
 import com.healthrecon.rag.repository.DocumentRepository;
 import com.healthrecon.rag.service.chunking.ChunkingService;
 import com.healthrecon.rag.service.chunking.TextChunk;
+import com.healthrecon.rag.service.semanticcache.SemanticCache;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -29,15 +30,18 @@ public class IndexingService {
     private final ChunkingService chunkingService;
     private final EmbeddingModel embeddingModel;
     private final VectorIndexer vectorIndexer;
+    private final SemanticCache semanticCache;
 
     public IndexingService(DocumentRepository documentRepository,
                            ChunkingService chunkingService,
                            EmbeddingModel embeddingModel,
-                           VectorIndexer vectorIndexer) {
+                           VectorIndexer vectorIndexer,
+                           SemanticCache semanticCache) {
         this.documentRepository = documentRepository;
         this.chunkingService = chunkingService;
         this.embeddingModel = embeddingModel;
         this.vectorIndexer = vectorIndexer;
+        this.semanticCache = semanticCache;
     }
 
     @Transactional
@@ -55,6 +59,7 @@ public class IndexingService {
                 vectorIndexer.upsert(doc, chunks, segments, embeddings);
             }
             doc.markIndexed();
+            semanticCache.invalidate(doc.getDocSetId());
         } catch (Exception e) {
             log.warn("Indexing failed for document {} ({})", doc.getId(), doc.getFilename(), e);
             doc.markIndexFailed(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());

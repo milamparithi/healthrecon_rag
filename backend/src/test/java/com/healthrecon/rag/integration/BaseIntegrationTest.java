@@ -20,6 +20,9 @@ import org.testcontainers.qdrant.QdrantContainer;
         "app.ingestion.initial-delay-ms=3600000",
         "app.indexing.poll-ms=3600000",
         "app.indexing.initial-delay-ms=3600000",
+        "app.golden.enabled=false",
+        "app.golden.poll-ms=3600000",
+        "app.golden.initial-delay-ms=3600000",
         "llm.embedding-dimension=768"
 })
 @AutoConfigureMockMvc

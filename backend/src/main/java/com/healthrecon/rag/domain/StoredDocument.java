@@ -48,6 +48,16 @@ public class StoredDocument {
     private String indexError;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "golden_status", nullable = false)
+    private GoldenStatus goldenStatus = GoldenStatus.PENDING;
+
+    @Column(name = "golden_error")
+    private String goldenError;
+
+    @Column(name = "golden_attempts", nullable = false)
+    private int goldenAttempts;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DocumentStatus status;
 
@@ -71,6 +81,9 @@ public class StoredDocument {
         this.extractedText = builder.extractedText;
         this.indexStatus = builder.indexStatus == null ? IndexStatus.NOT_INDEXED : builder.indexStatus;
         this.indexError = builder.indexError;
+        this.goldenStatus = GoldenStatus.PENDING;
+        this.goldenError = null;
+        this.goldenAttempts = 0;
         this.status = builder.status;
         this.error = builder.error;
         this.createdAt = builder.createdAt;
@@ -120,6 +133,18 @@ public class StoredDocument {
         return indexError;
     }
 
+    public GoldenStatus getGoldenStatus() {
+        return goldenStatus;
+    }
+
+    public String getGoldenError() {
+        return goldenError;
+    }
+
+    public int getGoldenAttempts() {
+        return goldenAttempts;
+    }
+
     public DocumentStatus getStatus() {
         return status;
     }
@@ -161,6 +186,22 @@ public class StoredDocument {
     public void markFailed(String error) {
         this.status = DocumentStatus.FAILED;
         this.error = error;
+    }
+
+    public void markGoldenGenerating() {
+        this.goldenStatus = GoldenStatus.GENERATING;
+        this.goldenAttempts++;
+        this.goldenError = null;
+    }
+
+    public void markGoldenDone() {
+        this.goldenStatus = GoldenStatus.DONE;
+        this.goldenError = null;
+    }
+
+    public void markGoldenFailed(String error) {
+        this.goldenStatus = GoldenStatus.FAILED;
+        this.goldenError = error;
     }
 
     public static class Builder {

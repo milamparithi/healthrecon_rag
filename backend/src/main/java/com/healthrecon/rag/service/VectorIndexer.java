@@ -30,5 +30,10 @@ public interface VectorIndexer {
     /** Drops everything belonging to a document set. */
     void deleteSet(UUID docSetId);
 
-    List<ChunkSearchHit> search(UUID docSetId, Embedding queryEmbedding, int topK);
+    /**
+     * Retrieves up to {@code topK} chunks for the query. The raw query text is
+     * used for the lexical (sparse) leg of hybrid search; the embedding is the
+     * dense leg. Implementations may fuse both and optionally rerank.
+     */
+    List<ChunkSearchHit> search(UUID docSetId, String queryText, Embedding queryEmbedding, int topK);
 }

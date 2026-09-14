@@ -1,6 +1,7 @@
 package com.healthrecon.rag.service.chunking;
 
 import com.healthrecon.rag.config.RagProperties;
+import com.healthrecon.rag.config.SearchProperties;
 import com.healthrecon.rag.service.extraction.MarkdownStructureExtractor;
 import com.healthrecon.rag.service.extraction.StructuralDocument;
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,9 @@ class AdaptiveStructuralChunkerTest {
     private final UUID docId = UUID.randomUUID();
 
     private AdaptiveStructuralChunker chunker(int chunkSize, int overlap, int maxChunks) {
-        RagProperties properties = new RagProperties(5, 10, "system",
-                new RagProperties.Chunking("adaptive", chunkSize, overlap, maxChunks));
+        RagProperties properties = new RagProperties(5, 10, "system", null, null,
+                new SearchProperties(true, 30, "rrf", new SearchProperties.Rerank(false, "none")),
+                null, new RagProperties.Chunking("adaptive", chunkSize, overlap, maxChunks));
         return new AdaptiveStructuralChunker(properties, new FixedCharChunker(properties));
     }
 

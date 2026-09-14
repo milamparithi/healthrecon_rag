@@ -6,6 +6,7 @@ import com.healthrecon.rag.domain.StoredDocument;
 import com.healthrecon.rag.repository.DocumentRepository;
 import com.healthrecon.rag.service.chunking.ChunkingService;
 import com.healthrecon.rag.service.chunking.TextChunk;
+import com.healthrecon.rag.service.semanticcache.SemanticCache;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
@@ -42,6 +43,13 @@ class IndexingServiceTest {
     @Mock
     private VectorIndexer vectorIndexer;
 
+    @Mock
+    private SemanticCache semanticCache;
+
+    private IndexingService service() {
+        return new IndexingService(documentRepository, chunkingService, embeddingModel, vectorIndexer, semanticCache);
+    }
+
     @Test
     void indexesChunksWhenDocumentProducesThem() {
         StoredDocument doc = readyDocument();
@@ -51,13 +59,14 @@ class IndexingServiceTest {
                 new TextChunk(doc.getId(), 1, "Title", "second")));
         when(embeddingModel.embedAll(anyList())).thenReturn(Response.from(List.of(
                 new Embedding(new float[]{0.1f}), new Embedding(new float[]{0.2f}))));
-        IndexingService service = new IndexingService(documentRepository, chunkingService, embeddingModel, vectorIndexer);
+        IndexingService service = service();
 
         service.indexDocument(doc);
 
         assertThat(doc.getIndexStatus()).isEqualTo(IndexStatus.INDEXED);
         assertThat(doc.getIndexError()).isNull();
         verify(vectorIndexer).upsert(any(), anyList(), anyList(), anyList());
+        verify(semanticCache).invalidate(doc.getDocSetId());
     }
 
     @Test
@@ -65,7 +74,7 @@ class IndexingServiceTest {
         StoredDocument doc = readyDocument();
         when(documentRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(chunkingService.chunk(any(), any(), any(), any())).thenReturn(List.of());
-        IndexingService service = new IndexingService(documentRepository, chunkingService, embeddingModel, vectorIndexer);
+        IndexingService service = service();
 
         service.indexDocument(doc);
 
@@ -81,7 +90,7 @@ class IndexingServiceTest {
         when(chunkingService.chunk(any(), any(), any(), any())).thenReturn(List.of(
                 new TextChunk(doc.getId(), 0, "", "text")));
         when(embeddingModel.embedAll(anyList())).thenThrow(new RuntimeException("provider down"));
-        IndexingService service = new IndexingService(documentRepository, chunkingService, embeddingModel, vectorIndexer);
+        IndexingService service = service();
 
         service.indexDocument(doc);
 

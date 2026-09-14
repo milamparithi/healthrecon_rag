@@ -165,4 +165,31 @@ describe('ChatPanel', () => {
     expect(mockGetMessages).toHaveBeenLastCalledWith('set-1', 'conv-2')
     vi.restoreAllMocks()
   })
+
+  it('caps the input length at 1000 characters', async () => {
+    mockList.mockResolvedValue([makeConversation()])
+    mockGetMessages.mockResolvedValue([])
+
+    render(<ChatPanel documentSetId="set-1" enabled={true} />)
+    await screen.findByText('Ask a question about the documents below.')
+
+    const input = screen.getByPlaceholderText('Ask about this document set…')
+    expect(input).toHaveAttribute('maxlength', '1000')
+  })
+
+  it('shows a character counter and locks send beyond the limit', async () => {
+    mockList.mockResolvedValue([makeConversation()])
+    mockGetMessages.mockResolvedValue([])
+
+    render(<ChatPanel documentSetId="set-1" enabled={true} />)
+    await screen.findByText('Ask a question about the documents below.')
+
+    const input = screen.getByPlaceholderText('Ask about this document set…')
+    fireEvent.change(input, { target: { value: 'a'.repeat(1001) } })
+
+    expect(screen.getByText('1001/1000')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    expect(mockSend).not.toHaveBeenCalled()
+  })
 })

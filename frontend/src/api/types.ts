@@ -95,6 +95,104 @@ export interface ChatReply {
   title?: string
 }
 
+export type GoldenCaseStatus = 'DRAFT' | 'GOLDEN'
+
+export interface GoldenSource {
+  filename: string
+  docId: string | null
+  section: string | null
+}
+
+export interface GoldenCase {
+  id: string
+  docSetId: string
+  sourceDocId: string | null
+  question: string
+  referenceAnswer: string
+  expectedSources: GoldenSource[]
+  status: GoldenCaseStatus
+  createdAt: string
+  updatedAt: string
+}
+
+export interface GoldenCaseInput {
+  question: string
+  answer: string
+  expectedSources: GoldenSource[] | null
+  status?: GoldenCaseStatus | null
+}
+
+export interface CaseEvalResult {
+  question: string
+  expected: string[]
+  retrieved: string[]
+  hit: boolean
+  rank: number
+  recall: number
+}
+
+export interface GoldenEvalReport {
+  casesEvaluated: number
+  recallAtK: number
+  mrr: number
+  hitRate: number
+  cases: CaseEvalResult[]
+  warnings: string[]
+}
+
+export type ReviewStatus = 'PENDING' | 'REVIEWED' | 'DISMISSED'
+
+export type Verdict = 'ACCEPT' | 'REWORD' | 'REJECT'
+
+export interface AnswerEval {
+  id: string
+  docSetId: string
+  chatMessageId: string | null
+  conversationId: string | null
+  question: string
+  answer: string
+  sources: Source[]
+  coverageScore: number | null
+  autoFlags: string[]
+  sampled: boolean
+  origin: string
+  reviewStatus: ReviewStatus
+  verdict: Verdict | null
+  rating: number | null
+  comment: string | null
+  correctedAnswer: string | null
+  reviewedAt: string | null
+  createdAt: string
+}
+
+export interface AnswerEvalPage {
+  content: AnswerEval[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+export interface EvalMetrics {
+  totalCaptured: number
+  flagged: number
+  sampled: number
+  pending: number
+  reviewed: number
+  dismissed: number
+  accepted: number
+  reworded: number
+  rejected: number
+  averageRating: number | null
+}
+
+export interface ReviewInput {
+  verdict: Verdict
+  rating?: number | null
+  comment?: string | null
+  correctedAnswer?: string | null
+}
+
 export interface ApiErrorBody {
   error: string
   message: string

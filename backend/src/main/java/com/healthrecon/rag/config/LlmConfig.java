@@ -1,14 +1,18 @@
 package com.healthrecon.rag.config;
 
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.listener.EmbeddingModelListener;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
+import java.util.List;
 
 /**
  * Wires the language and embedding models from configuration. The client is
@@ -19,29 +23,39 @@ import java.time.Duration;
  * network I/O when invoked; tests replace them with mocks.
  */
 @Configuration
-@EnableConfigurationProperties({LlmProperties.class, QdrantProperties.class, RagProperties.class, QuotaProperties.class})
+@EnableConfigurationProperties({LlmProperties.class, QdrantProperties.class, RagProperties.class,
+        QuotaProperties.class, GoldenProperties.class, GuardrailProperties.class, CacheProperties.class,
+        SearchProperties.class, EvalProperties.class})
 public class LlmConfig {
 
     @Bean
-    public ChatModel chatModel(LlmProperties properties) {
+    public ChatModel chatModel(LlmProperties properties, ObjectProvider<ChatModelListener> chatModelListeners) {
         requireConfigured(properties);
-        return OpenAiChatModel.builder()
+        var builder = OpenAiChatModel.builder()
                 .baseUrl(properties.baseUrl())
                 .apiKey(properties.apiKey())
                 .modelName(properties.chatModel())
-                .timeout(Duration.ofSeconds(60))
-                .build();
+                .timeout(Duration.ofSeconds(60));
+        List<ChatModelListener> listeners = chatModelListeners.orderedStream().toList();
+        if (!listeners.isEmpty()) {
+            builder.listeners(listeners);
+        }
+        return builder.build();
     }
 
     @Bean
-    public EmbeddingModel embeddingModel(LlmProperties properties) {
+    public EmbeddingModel embeddingModel(LlmProperties properties, ObjectProvider<EmbeddingModelListener> embeddingModelListeners) {
         requireConfigured(properties);
-        return OpenAiEmbeddingModel.builder()
+        var builder = OpenAiEmbeddingModel.builder()
                 .baseUrl(properties.baseUrl())
                 .apiKey(properties.apiKey())
                 .modelName(properties.embeddingModel())
-                .dimensions(properties.embeddingDimension())
-                .build();
+                .dimensions(properties.embeddingDimension());
+        List<EmbeddingModelListener> listeners = embeddingModelListeners.orderedStream().toList();
+        if (!listeners.isEmpty()) {
+            builder.listeners(listeners);
+        }
+        return builder.build();
     }
 
     private static void requireConfigured(LlmProperties properties) {

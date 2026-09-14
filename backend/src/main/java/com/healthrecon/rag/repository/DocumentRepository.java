@@ -1,6 +1,7 @@
 package com.healthrecon.rag.repository;
 
 import com.healthrecon.rag.domain.DocumentStatus;
+import com.healthrecon.rag.domain.GoldenStatus;
 import com.healthrecon.rag.domain.IndexStatus;
 import com.healthrecon.rag.domain.StoredDocument;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,18 @@ public interface DocumentRepository extends JpaRepository<StoredDocument, UUID> 
     List<StoredDocument> findAllByStatus(DocumentStatus status);
 
     List<StoredDocument> findAllByStatusAndIndexStatusIn(DocumentStatus status, Collection<IndexStatus> indexStatuses);
+
+    List<StoredDocument> findAllByStatusAndIndexStatusInAndGoldenStatusIn(
+            DocumentStatus status,
+            Collection<IndexStatus> indexStatuses,
+            Collection<GoldenStatus> goldenStatuses);
+
+    @Query("""
+            select d.filename
+            from StoredDocument d
+            where d.docSetId = :docSetId
+            """)
+    List<String> findFilenamesByDocSetId(@Param("docSetId") UUID docSetId);
 
     long countByDocSetId(UUID docSetId);
 

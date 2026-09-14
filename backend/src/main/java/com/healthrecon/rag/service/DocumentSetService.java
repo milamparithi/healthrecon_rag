@@ -13,6 +13,7 @@ import com.healthrecon.rag.repository.DocumentRepository;
 import com.healthrecon.rag.repository.DocumentSetRepository;
 import com.healthrecon.rag.security.CurrentUser;
 import com.healthrecon.rag.security.CurrentUserSupport;
+import com.healthrecon.rag.service.semanticcache.SemanticCache;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +27,16 @@ public class DocumentSetService {
     private final DocumentSetRepository documentSetRepository;
     private final DocumentRepository documentRepository;
     private final VectorIndexer vectorIndexer;
+    private final SemanticCache semanticCache;
 
     public DocumentSetService(DocumentSetRepository documentSetRepository,
                               DocumentRepository documentRepository,
-                              VectorIndexer vectorIndexer) {
+                              VectorIndexer vectorIndexer,
+                              SemanticCache semanticCache) {
         this.documentSetRepository = documentSetRepository;
         this.documentRepository = documentRepository;
         this.vectorIndexer = vectorIndexer;
+        this.semanticCache = semanticCache;
     }
 
     @Transactional
@@ -69,6 +73,7 @@ public class DocumentSetService {
         DocumentSet set = requireOwnedSet(docSetId);
         documentSetRepository.delete(set);
         vectorIndexer.deleteSet(docSetId);
+        semanticCache.invalidate(docSetId);
     }
 
     @Transactional
@@ -88,6 +93,7 @@ public class DocumentSetService {
         requireOwnedSet(docSetId);
         vectorIndexer.deleteSet(docSetId);
         documentRepository.deleteByDocSetId(docSetId);
+        semanticCache.invalidate(docSetId);
         recomputeStatus(docSetId);
     }
 
@@ -98,6 +104,7 @@ public class DocumentSetService {
                 .orElseThrow(() -> new NotFoundException("Document not found"));
         vectorIndexer.deleteDocument(docSetId, docId);
         documentRepository.delete(doc);
+        semanticCache.invalidate(docSetId);
         recomputeStatus(docSetId);
     }
 

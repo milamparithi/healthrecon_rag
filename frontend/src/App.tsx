@@ -3,6 +3,8 @@ import AppLayout from './components/AppLayout'
 import { RedirectIfAuthed, RequireAuth } from './auth/RequireAuth'
 import DashboardPage from './pages/DashboardPage'
 import DocumentSetDetailPage from './pages/DocumentSetDetailPage'
+import EvalsPage from './pages/EvalsPage'
+import GoldenCasesPage from './pages/GoldenCasesPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
@@ -34,6 +36,8 @@ export default function App() {
       >
         <Route path="/" element={<DashboardPage />} />
         <Route path="/documentsets/:id" element={<DocumentSetDetailPage />} />
+        <Route path="/documentsets/:id/evaluation" element={<GoldenCasesPage />} />
+        <Route path="/documentsets/:id/reviews" element={<EvalsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -3,6 +3,7 @@ package com.healthrecon.rag.api;
 import com.healthrecon.rag.exception.ConflictException;
 import com.healthrecon.rag.exception.InvalidCredentialsException;
 import com.healthrecon.rag.exception.NotFoundException;
+import com.healthrecon.rag.exception.TooManyRequestsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -58,6 +59,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> badRequest(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError("BadRequest", ex.getMessage()));
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<ApiError> tooManyRequests(TooManyRequestsException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(new ApiError("TooManyRequests", ex.getMessage()));
     }
 
     @ExceptionHandler({AccessDeniedException.class})
