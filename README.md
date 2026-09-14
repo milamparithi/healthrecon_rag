@@ -31,6 +31,51 @@ docker compose ps
 The first run pulls images, builds the backend JAR and frontend bundle, runs Flyway
 migrations, and starts Postgres, Qdrant, the Spring Boot backend, and the nginx frontend.
 
+## Screenshots
+
+A walkthrough of the app, captured against the Dockerized stack with a small demo
+document set ("Pediatric Dosing Guide").
+
+### Login & sign up
+
+![Login screen](screenshots/login.png)
+
+### Document sets dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+### Document set — upload & ingested documents
+
+![Upload documents](screenshots/documents.png)
+
+### Grounded RAG chat
+
+Citations (`[1]`) tie every answer to its source; the source files are listed under
+each reply. A repeated question is answered instantly from the semantic cache.
+
+![Chat](screenshots/chat.png)
+
+### Output reviews
+
+Every fresh answer is captured to the review queue with auto-flags
+(`GUARDRAIL_REFUSAL`, `LOW_COVERAGE`, `NO_SOURCES`), random sampling, coverage
+scores and status badges.
+
+![Output reviews](screenshots/reviews.png)
+
+### Golden dataset & evaluation
+
+Promote corrected answers to golden cases and run retrieval-only evaluation
+(Recall@K, MRR, hit rate) against the indexed documents.
+
+![Golden cases](screenshots/golden-cases.png)
+
+### Mobile responsive
+
+The SPA stays usable on phone-sized viewports.
+
+![Mobile view](screenshots/mobile.png)
+
 ## LLM configuration
 
 The app is LLM-provider-agnostic via LangChain4j and requires an
@@ -265,7 +310,7 @@ LANGFUSE_PUBLIC_KEY=pk-...
 LANGFUSE_SECRET_KEY=sk-...
 ```
 
-- **Full RAG trace** — every chat turn emits a `chat.request` trace with
+- **Full RAG trace** — every chat turn emits a `chat` trace with
   per-stage sub-spans (input screening, semantic-cache lookup/store, query
   rewrite, retrieval, output guardrails, eval capture) and each model call as a
   `generation-chat` / `generation-embedding` child span with `gen_ai.*` usage
@@ -391,6 +436,7 @@ healthrecon-rag/
 │       ├── components/   Shared UI (AppLayout, StatusBadge, ChatPanel)
 │       └── pages/        Dashboard, DocumentSetDetail, Login, Register
 ├── spec/             Architecture, implementation plan, test plan
+├── screenshots/      App screenshots used in this README
 ├── docker-compose.yml
 └── .env.example
 ```

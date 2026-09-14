@@ -18,12 +18,13 @@ import java.util.Base64;
 
 /**
  * Langfuse Cloud integration. Traces are exported over OTLP/HTTP to
- * {@code host + "/api/public/otel"} (Langfuse does not accept gRPC) using the
- * signed {@code public-key:secret-key} pair as HTTP Basic credentials. The
- * exporter is created only when {@code app.langfuse.enabled} is true and both
- * keys are set; in every other case the helper is a no-op, so the chat pipeline
- * pays nothing when observability is off. All failures degrade to no-op tracing
- * instead of failing the application.
+ * {@code host + "/api/public/otel/v1/traces"} (Langfuse does not accept gRPC; the OTLP
+ * receiver is mounted at {@code /api/public/otel}, which maps to the proto signal path
+ * {@code /api/public/otel/v1/traces}) using the signed {@code public-key:secret-key} pair as
+ * HTTP Basic credentials. The exporter is created only when {@code app.langfuse.enabled} is
+ * true and both keys are set; in every other case the helper is a no-op, so the chat pipeline
+ * pays nothing when observability is off. All failures degrade to no-op tracing instead of
+ * failing the application.
  */
 @Configuration
 @EnableConfigurationProperties(LangfuseProperties.class)
@@ -48,7 +49,7 @@ public class LangfuseTraceConfig {
             String credentials = Base64.getEncoder().encodeToString(
                     (properties.publicKey() + ":" + properties.secretKey()).getBytes(StandardCharsets.UTF_8));
             OtlpHttpSpanExporter exporter = OtlpHttpSpanExporter.builder()
-                    .setEndpoint(properties.hostOrDefault() + "/api/public/otel")
+                    .setEndpoint(properties.hostOrDefault() + "/api/public/otel/v1/traces")
                     .addHeader("Authorization", "Basic " + credentials)
                     .addHeader("x-langfuse-ingestion-version", INGESTION_VERSION)
                     .build();

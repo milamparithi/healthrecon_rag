@@ -291,15 +291,17 @@ belongs to a future observability layer. Instead:
 - **Purpose / scope**: emit a full RAG trace per chat turn to Langfuse Cloud via OpenTelemetry
   OTLP/HTTP (no official SDK — own listeners + span helper for exact attribute control).
   **Fail-open, default-off**, `.env`/compose-only config.
-- **Transport**: exporter posts to `{LANGFUSE_HOST}/api/public/otel` (OTLP/HTTP JSON,
-  Langfuse has no gRPC endpoint) with HTTP Basic `base64(pk:sk)` +
+- **Transport**: exporter posts to `{LANGFUSE_HOST}/api/public/otel/v1/traces` (OTLP/HTTP JSON;
+  Langfuse mounts the receiver at `/api/public/otel` and requires the proto signal path
+  `/v1/traces` — the bare path returns 404; no gRPC) with HTTP Basic `base64(pk:sk)` +
   `x-langfuse-ingestion-version: 4`; `SdkTracerProvider` + `BatchSpanProcessor` built in
   `LangfuseTraceConfig` only when enabled **and** both keys are set; shutdown-hook flush.
-- **Span model**: `ChatService.chat` creates a root `chat.request` span; `doChat` opens named
+- **Span model**: `ChatService.chat` creates a root `chat` span; `doChat` opens named
   sub-spans (`guardrails.input`, `semantic-cache.lookup`, `query-rewrite`, `retriever`,
   `semantic-cache.store`, `guardrails.output`, `eval.capture`). `LangfuseChatModelListener` /
-  `LangfuseEmbeddingModelListener` (injected into the model beans via `ObjectProvider`) create
-  `generation-chat` / `generation-embedding` child spans for every model call.
+  `LangfuseEmbeddingModelListener` (`@Component` beans injected into the model beans via
+  `ObjectProvider`) create `generation-chat` / `generation-embedding` child spans for every
+  model call.
 - **Attributes**: `gen_ai.*` model/provider/token usage, `input.value`/`output.value`, and
   Langfuse conventions (`langfuse.observation.type`, `langfuse.session.id`/`user.id`,
   `langfuse.trace.name`); eval verdicts/coverage/citation/refused as

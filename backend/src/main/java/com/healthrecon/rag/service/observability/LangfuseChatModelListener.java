@@ -17,6 +17,7 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ import java.util.List;
  * listener must never throw: tracing failures are logged at debug so they can
  * never break the LLM call.
  */
+@Component
 public class LangfuseChatModelListener implements ChatModelListener {
 
     private static final Logger log = LoggerFactory.getLogger(LangfuseChatModelListener.class);

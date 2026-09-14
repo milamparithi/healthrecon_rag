@@ -13,6 +13,7 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ import java.util.List;
  * small. Tracing failures are logged at debug and never break the embedding
  * call.
  */
+@Component
 public class LangfuseEmbeddingModelListener implements EmbeddingModelListener {
 
     private static final Logger log = LoggerFactory.getLogger(LangfuseEmbeddingModelListener.class);

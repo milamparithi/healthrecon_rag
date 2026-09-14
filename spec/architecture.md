@@ -345,19 +345,22 @@ exception/ custom exceptions (auth/, not-found, conflict)
   and a span helper so the exact attribute set is controlled. **Fail-open and off by
   default**: tracing never throws into the request path, and with `enabled=false` (or missing
   keys) `LangfuseSpanHelper` becomes a no-op so there is zero runtime overhead.
-- **Ingestion transport**: the exporter posts to `{LANGFUSE_HOST}/api/public/otel`
-  (OTLP/HTTP JSON — Langfuse does not accept gRPC) with HTTP Basic auth
+- **Ingestion transport**: the exporter posts to `{LANGFUSE_HOST}/api/public/otel/v1/traces`
+  (OTLP/HTTP JSON; Langfuse's OTLP receiver is mounted at `/api/public/otel` with the proto
+  signal path `/v1/traces` appended — posting to the bare `/api/public/otel` returns 404,
+  and gRPC is not accepted) with HTTP Basic auth
   `base64(LANGFUSE_PUBLIC_KEY:LANGFUSE_SECRET_KEY)` plus header
   `x-langfuse-ingestion-version: 4`. `SdkTracerProvider` + `BatchSpanProcessor` +
   `OtlpHttpSpanExporter` are built in `LangfuseTraceConfig` only when
   `langfuse.enabled` is true **and** both keys are present; a JVM shutdown hook forces a
   flush.
-- **Span model** (`ChatService.chat` → `doChat`): a root span `chat.request` created per turn,
+- **Span model** (`ChatService.chat` → `doChat`): a root span `chat` created per turn,
   then named sub-spans for each stage — `guardrails.input`, `semantic-cache.lookup`,
   `semantic-cache.store`, `query-rewrite`, `retriever`, `guardrails.output`, `eval.capture`.
-  The `ChatModel` and `EmbeddingModel` beans get `LangfuseChatModelListener` /
-  `LangfuseEmbeddingModelListener` injected (via `ObjectProvider`) so every model call inside
-  those stages appears as `generation-chat` / `generation-embedding` child spans.
+  The `ChatModel` and `EmbeddingModel` beans get the `@Component`
+  `LangfuseChatModelListener` / `LangfuseEmbeddingModelListener` injected (via
+  `ObjectProvider`) so every model call inside those stages appears as `generation-chat` /
+  `generation-embedding` child spans.
 - **Attributes**: `gen_ai.*` (provider, model, prompt/response, input/output tokens,
   usage), `input.value`/`output.value`, and Langfuse conventions — `langfuse.observation.type`,
   `langfuse.session.id`/`user.id`, `langfuse.trace.name`, and evaluation results as
